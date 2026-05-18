@@ -1,0 +1,249 @@
+<div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem;">
+  <h2 class="sr-only">Daily Slack dashboard for Warmy's GEO ranking with day-over-day deltas, 14-day SoV trend, per-LLM rank breakdown, head-to-head competitor leaderboard, and topic ranks. US only, 5 LLMs.</h2>
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); overflow: hidden;">
+
+    <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary);">
+      <div style="width: 32px; height: 32px; border-radius: var(--border-radius-md); background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 13px; color: var(--color-text-info);">GEO</div>
+      <div style="flex: 1;">
+        <p style="font-weight: 500; font-size: 14px; margin: 0;">Warmy GEO bot <span style="font-size: 11px; color: var(--color-text-tertiary); font-weight: 400; margin-left: 4px;">APP</span></p>
+        <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0;">#geo-daily · 9:00 AM</p>
+      </div>
+      <span style="font-size: 11px; color: var(--color-text-tertiary);">May 18, 2026 · vs May 17</span>
+    </div>
+
+    <div style="padding: 16px;">
+      <p style="font-size: 15px; font-weight: 500; margin: 0 0 4px;">Daily GEO standup — Warmy</p>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0 0 16px;">100 prompts · 5 LLMs · US only · 11 competitors · 14 topics</p>
+
+      <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 6px;">Today vs yesterday</p>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px;">
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+          <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px;">Rank in pack</p>
+          <p style="font-size: 22px; font-weight: 500; margin: 0;">#4 <span style="font-size: 12px; color: var(--color-text-tertiary); font-weight: 400;">—</span></p>
+          <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 4px 0 0;">no change</p>
+        </div>
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+          <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px;">Share of voice</p>
+          <p style="font-size: 22px; font-weight: 500; margin: 0;">1.77% <span style="font-size: 12px; color: var(--color-text-success); font-weight: 400;">+0.12</span></p>
+          <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 4px 0 0;">was 1.65%</p>
+        </div>
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+          <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px;">Mention rate</p>
+          <p style="font-size: 22px; font-weight: 500; margin: 0;">53% <span style="font-size: 12px; color: var(--color-text-success); font-weight: 400;">+1.4</span></p>
+          <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 4px 0 0;">was 51.6%</p>
+        </div>
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+          <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px;">Avg position</p>
+          <p style="font-size: 22px; font-weight: 500; margin: 0;">#7.2 <span style="font-size: 12px; color: var(--color-text-danger); font-weight: 400;">↓0.3</span></p>
+          <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 4px 0 0;">was #6.9</p>
+        </div>
+      </div>
+
+      <p style="font-size: 13px; font-weight: 500; margin: 0 0 8px;">Share of voice — last 14 days</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 11px; color: var(--color-text-secondary);">
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 14px; height: 2px; background: #378ADD;"></span>Warmy 1.77%</span>
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 14px; height: 2px; background: #5F5E5A; border-top: 1px dashed #5F5E5A;"></span>Mailreach 3.77%</span>
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 14px; height: 2px; background: #B4B2A9;"></span>Instantly 3.02%</span>
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 14px; height: 2px; background: #D3D1C7;"></span>Folderly 2.18%</span>
+      </div>
+      <div style="position: relative; width: 100%; height: 200px; margin-bottom: 18px;">
+        <canvas id="trendChart" role="img" aria-label="Line chart showing share of voice over 14 days for Warmy, Mailreach, Instantly, and Folderly.">14-day SoV trend.</canvas>
+      </div>
+
+      <p style="font-size: 13px; font-weight: 500; margin: 0 0 8px;">Rank by LLM</p>
+      <div style="border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; margin-bottom: 12px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;">
+          <thead>
+            <tr style="background: var(--color-background-secondary);">
+              <th style="text-align: left; padding: 6px 8px; font-weight: 500; color: var(--color-text-secondary); width: 28%;">LLM</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 11%;">Rank</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 13%;">SoV</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 13%;">Mention %</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 12%;">Δ SoV</th>
+              <th style="text-align: left; padding: 6px 6px; font-weight: 500; color: var(--color-text-secondary);">Top competitor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);">
+              <td style="padding: 5px 8px;">Google AI Overview</td>
+              <td style="padding: 5px 4px;"><div style="background: #1D9E75; color: #04342C; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#1</div></td>
+              <td style="padding: 5px 4px; text-align: center;">3.15%</td>
+              <td style="padding: 5px 4px; text-align: center;">72%</td>
+              <td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.31</td>
+              <td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach 3.20%</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);">
+              <td style="padding: 5px 8px;">Google AI Mode</td>
+              <td style="padding: 5px 4px;"><div style="background: #9FE1CB; color: #04342C; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#2</div></td>
+              <td style="padding: 5px 4px; text-align: center;">2.84%</td>
+              <td style="padding: 5px 4px; text-align: center;">61%</td>
+              <td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.22</td>
+              <td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach 3.41%</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);">
+              <td style="padding: 5px 8px;">ChatGPT</td>
+              <td style="padding: 5px 4px;"><div style="background: #FAEEDA; color: #412402; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#3</div></td>
+              <td style="padding: 5px 4px; text-align: center;">2.41%</td>
+              <td style="padding: 5px 4px; text-align: center;">68%</td>
+              <td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.18</td>
+              <td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach 4.12%</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);">
+              <td style="padding: 5px 8px;">Gemini</td>
+              <td style="padding: 5px 4px;"><div style="background: #F09595; color: #501313; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#6</div></td>
+              <td style="padding: 5px 4px; text-align: center;">0.62%</td>
+              <td style="padding: 5px 4px; text-align: center;">29%</td>
+              <td style="padding: 5px 4px; text-align: center; color: var(--color-text-danger);">−0.04</td>
+              <td style="padding: 5px 6px; color: var(--color-text-secondary);">Folderly 3.88%</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);">
+              <td style="padding: 5px 8px;">Perplexity</td>
+              <td style="padding: 5px 4px;"><div style="background: #FAEEDA; color: #412402; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#4</div></td>
+              <td style="padding: 5px 4px; text-align: center;">1.21%</td>
+              <td style="padding: 5px 4px; text-align: center;">54%</td>
+              <td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.09</td>
+              <td style="padding: 5px 6px; color: var(--color-text-secondary);">Instantly 3.74%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="position: relative; width: 100%; height: 180px; margin-bottom: 18px;">
+        <canvas id="llmChart" role="img" aria-label="Bar chart of share of voice across five LLMs. Warmy versus top competitor in each.">SoV by LLM.</canvas>
+      </div>
+
+      <p style="font-size: 13px; font-weight: 500; margin: 0 0 8px;">Competitor leaderboard</p>
+      <div style="position: relative; width: 100%; height: 320px; margin-bottom: 18px;">
+        <canvas id="leaderChart" role="img" aria-label="Horizontal bar chart of share of voice for all tracked brands.">Brand SoV leaderboard.</canvas>
+      </div>
+
+      <div style="background: #FCEBEB; border: 0.5px solid #E24B4A; border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 18px;">
+        <p style="font-size: 12px; font-weight: 500; color: #501313; margin: 0 0 8px;">Top recommendations to focus on</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <span style="flex-shrink: 0; width: 20px; height: 20px; background: #A32D2D; color: #FCEBEB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;">1</span>
+          <div style="flex: 1;">
+            <p style="font-size: 12px; font-weight: 500; color: #501313; margin: 0 0 2px;">Fix Gemini — Warmy is #6 there, dragging the average down</p>
+            <p style="font-size: 11px; color: #791F1F; margin: 0; line-height: 1.5;">0.62% SoV on Gemini vs 3.15% on Google AI Overview. Gemini leans on different sources — audit its citations and pursue placement on the domains it prefers.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <span style="flex-shrink: 0; width: 20px; height: 20px; background: #A32D2D; color: #FCEBEB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;">2</span>
+          <div style="flex: 1;">
+            <p style="font-size: 12px; font-weight: 500; color: #501313; margin: 0 0 2px;">Reclaim Email Warmup — Mailreach winning Warmy's home category</p>
+            <p style="font-size: 11px; color: #791F1F; margin: 0; line-height: 1.5;">Mailreach 7.0% SoV vs Warmy 1.5% on the warmup topic. Build comparison content and pursue review-site placements (G2, Capterra).</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <span style="flex-shrink: 0; width: 20px; height: 20px; background: #A32D2D; color: #FCEBEB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;">3</span>
+          <div style="flex: 1;">
+            <p style="font-size: 12px; font-weight: 500; color: #501313; margin: 0 0 2px;">Push Perplexity higher — citations gap vs ChatGPT</p>
+            <p style="font-size: 11px; color: #791F1F; margin: 0; line-height: 1.5;">Perplexity SoV 1.21% vs ChatGPT 2.41%. Perplexity pulls heavily from Reddit and review sites — prioritise those channels.</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size: 13px; font-weight: 500; margin: 0 0 8px;">Warmy's rank by topic</p>
+      <div style="border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;">
+          <thead>
+            <tr style="background: var(--color-background-secondary);">
+              <th style="text-align: left; padding: 6px 8px; font-weight: 500; color: var(--color-text-secondary); width: 32%;">Topic</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 12%;">Rank</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 14%;">Warmy SoV</th>
+              <th style="text-align: center; padding: 6px 4px; font-weight: 500; color: var(--color-text-secondary); width: 12%;">Δ</th>
+              <th style="text-align: left; padding: 6px 6px; font-weight: 500; color: var(--color-text-secondary);">Leader</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);"><td style="padding: 5px 8px;">Email Warmup</td><td style="padding: 5px 4px;"><div style="background: #1D9E75; color: #04342C; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#1</div></td><td style="padding: 5px 4px; text-align: center;">1.49%</td><td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.08</td><td style="padding: 5px 6px; color: var(--color-text-secondary);">Warmy</td></tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);"><td style="padding: 5px 8px;">Email Deliverability</td><td style="padding: 5px 4px;"><div style="background: #9FE1CB; color: #04342C; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#2</div></td><td style="padding: 5px 4px; text-align: center;">5.10%</td><td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.22</td><td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach</td></tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);"><td style="padding: 5px 8px;">B2B outreach</td><td style="padding: 5px 4px;"><div style="background: #FAEEDA; color: #412402; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#3</div></td><td style="padding: 5px 4px; text-align: center;">0.61%</td><td style="padding: 5px 4px; text-align: center; color: var(--color-text-tertiary);">—</td><td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach</td></tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);"><td style="padding: 5px 8px;">Marketing Tools</td><td style="padding: 5px 4px;"><div style="background: #F09595; color: #501313; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#5</div></td><td style="padding: 5px 4px; text-align: center;">1.07%</td><td style="padding: 5px 4px; text-align: center; color: var(--color-text-tertiary);">—</td><td style="padding: 5px 6px; color: var(--color-text-secondary);">Mailreach</td></tr>
+            <tr style="border-top: 0.5px solid var(--color-border-tertiary);"><td style="padding: 5px 8px;">Business Solutions</td><td style="padding: 5px 4px;"><div style="background: #F09595; color: #501313; font-weight: 500; border-radius: 3px; padding: 4px 0; text-align: center;">#5</div></td><td style="padding: 5px 4px; text-align: center;">1.18%</td><td style="padding: 5px 4px; text-align: center; color: var(--color-text-success);">+0.09</td><td style="padding: 5px 6px; color: var(--color-text-secondary);">Instantly.ai</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary);">
+        <button onclick="sendPrompt('Audit Gemini citations — which sources is it pulling for warmup queries that Warmy is missing from?')" style="font-size: 12px;">Audit Gemini sources ↗</button>
+        <button onclick="sendPrompt('Show every prompt where Mailreach beats Warmy by more than 3 SoV points.')" style="font-size: 12px;">Mailreach gap audit ↗</button>
+        <button onclick="sendPrompt('Which Google AI Overview prompts mention Warmy and which do not?')" style="font-size: 12px;">AI Overview audit ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const grid = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const tick = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
+
+  const days = ['May 5','May 6','May 7','May 8','May 9','May 10','May 11','May 12','May 13','May 14','May 15','May 16','May 17','May 18'];
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        { label:'Mailreach', data:[3.71,3.74,3.69,3.78,3.80,3.75,3.72,3.78,3.81,3.76,3.79,3.74,3.78,3.77], borderColor:'#5F5E5A', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.25 },
+        { label:'Instantly', data:[2.91,2.95,2.98,2.94,3.01,3.05,2.99,3.02,3.04,3.00,3.03,2.99,3.01,3.02], borderColor:'#B4B2A9', borderWidth:1.5, pointRadius:0, tension:0.25 },
+        { label:'Folderly', data:[2.21,2.18,2.20,2.15,2.19,2.17,2.16,2.20,2.18,2.15,2.19,2.20,2.17,2.18], borderColor:'#D3D1C7', borderWidth:1.5, pointRadius:0, tension:0.25 },
+        { label:'Warmy', data:[1.50,1.53,1.55,1.58,1.56,1.60,1.62,1.59,1.64,1.66,1.69,1.65,1.65,1.77], borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.08)', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:0.25, fill:true }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}} },
+      scales: {
+        x:{grid:{display:false}, ticks:{color:tick, font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:7}},
+        y:{min:1.0, max:4.2, grid:{color:grid, drawBorder:false}, ticks:{color:tick, font:{size:10}, callback:(v)=>v.toFixed(1)+'%'}}
+      }
+    }
+  });
+
+  new Chart(document.getElementById('llmChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Google AI Overview','Google AI Mode','ChatGPT','Gemini','Perplexity'],
+      datasets: [
+        { label:'Warmy', data:[3.15,2.84,2.41,0.62,1.21], backgroundColor:'#378ADD', borderRadius:3, barThickness:18 },
+        { label:'Top competitor', data:[3.20,3.41,4.12,3.88,3.74], backgroundColor:'#B4B2A9', borderRadius:3, barThickness:18 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}}
+      },
+      scales: {
+        x:{grid:{display:false}, ticks:{color:tick, font:{size:10}}},
+        y:{grid:{color:grid, drawBorder:false}, ticks:{color:tick, font:{size:10}, callback:(v)=>v.toFixed(1)+'%'}, max:5}
+      }
+    }
+  });
+
+  new Chart(document.getElementById('leaderChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mailreach','Instantly.ai','Folderly','Warmy','Validity','Mailwarm','InboxAlly','WarmUpInbox'],
+      datasets: [{ label:'SoV %', data:[3.77,3.02,2.18,1.77,0.80,0.79,0.57,0.00],
+        backgroundColor:['#888780','#888780','#888780','#378ADD','#B4B2A9','#B4B2A9','#B4B2A9','#B4B2A9'],
+        borderRadius:3, barThickness:18 }]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>` ${c.parsed.x.toFixed(2)}%`}}},
+      scales: {
+        x:{grid:{color:grid, drawBorder:false}, ticks:{color:tick, font:{size:10}, callback:(v)=>v.toFixed(1)+'%'}, max:4.2},
+        y:{grid:{display:false}, ticks:{color:tick, font:{size:11}}}
+      }
+    }
+  });
+})();
+</script>

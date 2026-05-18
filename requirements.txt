@@ -1,0 +1,8 @@
+openai
+anthropic
+google-genai
+google-api-python-client
+google-auth
+playwright
+requests
+python-dotenv

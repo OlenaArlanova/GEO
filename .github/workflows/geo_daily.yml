@@ -1,0 +1,37 @@
+name: GEO Daily
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
+          PERPLEXITY_API_KEY:             ${{ secrets.PERPLEXITY_API_KEY }}
+          BRIGHTDATA_API_KEY:             ${{ secrets.BRIGHTDATA_API_KEY }}
+          BRIGHTDATA_GOOGLE_AI_DATASET_ID: ${{ secrets.BRIGHTDATA_GOOGLE_AI_DATASET_ID }}
+          GOOGLE_SHEETS_ID:               ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_CREDENTIALS_JSON: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS_JSON }}
+          SLACK_BOT_TOKEN:                ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL:                  ${{ secrets.SLACK_CHANNEL }}
+        run: python main_v2.py
