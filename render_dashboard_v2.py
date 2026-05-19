@@ -163,15 +163,20 @@ def generate_dashboard_html(metrics):
     # --- Trend legend ---
     legend_items = []
     for brand in trend["brands"]:
-        cfg = _TREND_COLORS.get(brand, {"color": "#999", "dash": False})
+        cfg = _TREND_COLORS.get(brand, {"color": "#999", "dash": False, "width": 1.5})
         current_sov = trend["series"][brand][-1] if trend["series"][brand] else 0.0
         display = _BRAND_DISPLAY.get(brand, brand)
-        style = f"width:14px;height:2px;background:{cfg['color']};"
-        if cfg.get("dash"):
-            style += f"border-top:1px dashed {cfg['color']};"
+        color = cfg["color"]
+        stroke_w = cfg.get("width", 1.5)
+        dasharray = "4,3" if cfg.get("dash") else "none"
+        svg = (
+            f'<svg width="18" height="10" style="flex-shrink:0;" viewBox="0 0 18 10">'
+            f'<line x1="0" y1="5" x2="18" y2="5" stroke="{color}" stroke-width="{stroke_w}" stroke-dasharray="{dasharray}"/>'
+            f'</svg>'
+        )
         legend_items.append(
             f'<span style="display:flex;align-items:center;gap:5px;">'
-            f'<span style="{style}"></span>{display} {current_sov:.2f}%</span>'
+            f'{svg}{display} {current_sov:.2f}%</span>'
         )
     trend_legend = (
         f'<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;'

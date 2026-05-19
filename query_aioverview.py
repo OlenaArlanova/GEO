@@ -50,7 +50,12 @@ def _query_one(prompt_row):
                 timeout=120,
             )
             resp.raise_for_status()
-            return resp.json()
+            if not resp.text.strip():
+                raise ValueError(f"Empty response (HTTP {resp.status_code})")
+            try:
+                return resp.json()
+            except Exception:
+                raise ValueError(f"Non-JSON response (HTTP {resp.status_code}): {resp.text[:300]}")
         except Exception as e:
             if attempt == 1:
                 raise
