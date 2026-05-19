@@ -30,6 +30,7 @@ jobs:
           PERPLEXITY_API_KEY:             ${{ secrets.PERPLEXITY_API_KEY }}
           BRIGHTDATA_API_KEY:             ${{ secrets.BRIGHTDATA_API_KEY }}
           BRIGHTDATA_GOOGLE_AI_DATASET_ID: ${{ secrets.BRIGHTDATA_GOOGLE_AI_DATASET_ID }}
+          BRIGHTDATA_SERP_ZONE:           ${{ secrets.BRIGHTDATA_SERP_ZONE }}
           GOOGLE_SHEETS_ID:               ${{ secrets.GOOGLE_SHEETS_ID }}
           GOOGLE_SHEETS_CREDENTIALS_JSON: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS_JSON }}
           SLACK_BOT_TOKEN:                ${{ secrets.SLACK_BOT_TOKEN }}
