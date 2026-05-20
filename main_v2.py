@@ -26,14 +26,14 @@ def _run_snapshot(label, get_snap_fn, process_fn):
 def main():
     total = 0
 
-    # print("--- Downloading snapshots ---")
-    # total += _run_snapshot("ChatGPT", get_todays_chatgpt_snapshot, _process_chatgpt)
-    # total += _run_snapshot("Gemini", get_todays_gemini_snapshot, _process_gemini)
-    # total += _run_snapshot("Perplexity", get_todays_perplexity_snapshot, _process_perplexity)
-    # total += _run_snapshot("GoogleAIMode", get_todays_googleaimode_snapshot, _process_googleaimode)
+    print("--- Downloading snapshots ---")
+    total += _run_snapshot("ChatGPT", get_todays_chatgpt_snapshot, _process_chatgpt)
+    total += _run_snapshot("Gemini", get_todays_gemini_snapshot, _process_gemini)
+    total += _run_snapshot("Perplexity", get_todays_perplexity_snapshot, _process_perplexity)
+    total += _run_snapshot("GoogleAIMode", get_todays_googleaimode_snapshot, _process_googleaimode)
 
-    # print("--- Querying Google AI Overview ---")
-    # run_aioverview()
+    print("--- Querying Google AI Overview ---")
+    run_aioverview()
 
     print(f"Total snapshot rows written: {total}")
 
