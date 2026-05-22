@@ -242,6 +242,22 @@ def generate_dashboard_html(metrics):
   <td style="padding:5px 6px;color:var(--cs2);">{leader_disp}</td>
 </tr>"""
 
+    # --- Top domains table ---
+    top_domains = metrics.get("top_domains", [])
+    domain_rows = ""
+    for d in top_domains:
+        is_warmy = d["domain"] == "warmy.io"
+        row_style = "background:var(--bgi);" if is_warmy else ""
+        domain_style = "color:var(--cti);font-weight:500;" if is_warmy else ""
+        domain_rows += (
+            f'<tr style="border-top:0.5px solid var(--brd);{row_style}">'
+            f'<td style="padding:5px 8px;text-align:center;color:var(--ct);">{d["rank"]}</td>'
+            f'<td style="padding:5px 8px;{domain_style}">{d["domain"]}</td>'
+            f'<td style="padding:5px 4px;text-align:center;">{d["count"]:,}</td>'
+            f'<td style="padding:5px 4px;text-align:center;">{d["unique_urls"]:,}</td>'
+            f'</tr>'
+        )
+
     trend_dates_js = json.dumps(trend["dates"])
     trend_datasets_js = _trend_datasets_js(trend)
     _positive_vals = [v for s in trend["series"].values() for v in s if v > 0]
@@ -351,6 +367,21 @@ def generate_dashboard_html(metrics):
             </tr>
           </thead>
           <tbody>{topic_rows}</tbody>
+        </table>
+      </div>
+
+      <p style="font-size:13px;font-weight:500;margin:0 0 8px;">Top source domains — LLM citations</p>
+      <div style="border:0.5px solid var(--brd);border-radius:var(--rmd);overflow:hidden;margin-bottom:16px;">
+        <table style="width:100%;font-size:11px;table-layout:fixed;">
+          <thead>
+            <tr style="background:var(--bg2);">
+              <th style="text-align:center;padding:6px 8px;font-weight:500;color:var(--cs2);width:10%;">#</th>
+              <th style="text-align:left;padding:6px 8px;font-weight:500;color:var(--cs2);width:42%;">Domain</th>
+              <th style="text-align:center;padding:6px 4px;font-weight:500;color:var(--cs2);width:24%;">Count</th>
+              <th style="text-align:center;padding:6px 4px;font-weight:500;color:var(--cs2);width:24%;">Unique URLs</th>
+            </tr>
+          </thead>
+          <tbody>{domain_rows}</tbody>
         </table>
       </div>
 

@@ -7,6 +7,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 _SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+_DOMAINS_GID = 1685142524
 
 ALL_BRANDS = [
     "Warmy", "Mailreach", "Instantly", "Folderly", "Validity",
@@ -21,6 +22,36 @@ def _service():
         scopes=_SCOPES,
     )
     return build("sheets", "v4", credentials=creds)
+
+
+def _fetch_top_domains():
+    svc = _service()
+    sheet_id = os.environ["GOOGLE_SHEETS_ID"]
+    meta = svc.spreadsheets().get(spreadsheetId=sheet_id).execute()
+    title = next(
+        (s["properties"]["title"] for s in meta.get("sheets", [])
+         if s["properties"]["sheetId"] == _DOMAINS_GID),
+        None,
+    )
+    if not title:
+        return []
+    result = svc.spreadsheets().values().get(
+        spreadsheetId=sheet_id, range=title,
+    ).execute()
+    values = result.get("values", [])
+    if len(values) < 2:
+        return []
+    headers = [h.strip().lower().replace(" ", "_") for h in values[0]]
+    rows = []
+    for row in values[1:]:
+        d = dict(zip(headers, row + [""] * max(0, len(headers) - len(row))))
+        rows.append({
+            "rank":        int(d.get("rank", 0)),
+            "domain":      d.get("domain", ""),
+            "count":       int(d.get("count", 0)),
+            "unique_urls": int(d.get("unique_urls", 0)),
+        })
+    return rows
 
 
 def _fetch_all_rows():
@@ -214,7 +245,8 @@ def compute_metrics():
             "brands":  trend_brands,
             "series":  {b: trend_series[b] for b in trend_brands},
         },
-        "by_llm":    _llm_metrics(today_rows, yest_rows),
-        "by_topic":  _topic_metrics(today_rows, yest_rows),
+        "by_llm":      _llm_metrics(today_rows, yest_rows),
+        "by_topic":    _topic_metrics(today_rows, yest_rows),
         "leaderboard": leaderboard,
+        "top_domains": _fetch_top_domains(),
     }
