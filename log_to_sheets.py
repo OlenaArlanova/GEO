@@ -1,10 +1,12 @@
 import json
 import os
 import threading
+import time
 from datetime import date
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 _SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 _write_lock = threading.Lock()
@@ -14,6 +16,26 @@ _COLUMNS = [
     "source_urls",
 ]
 _SOURCES_GID = 1200576464
+_SHEETS_CELL_LIMIT = 50000
+_BATCH_SIZE = 50
+_MAX_RETRIES = 5
+_RETRY_STATUSES = {429, 503}
+
+
+def _trunc(value, limit=_SHEETS_CELL_LIMIT):
+    s = str(value) if value is not None else ""
+    return s[:limit] if len(s) > limit else s
+
+
+def _execute_with_retry(request):
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return request.execute()
+        except HttpError as exc:
+            if exc.resp.status in _RETRY_STATUSES and attempt < _MAX_RETRIES - 1:
+                time.sleep(2 ** (attempt + 1))  # 2, 4, 8, 16, 32 s
+            else:
+                raise
 
 
 def _service():
@@ -25,20 +47,22 @@ def _service():
 
 
 def _ensure_header(svc, sheet_id):
-    existing = svc.spreadsheets().values().get(
-        spreadsheetId=sheet_id, range="Logs!A1:K1"
-    ).execute().get("values")
+    existing = _execute_with_retry(
+        svc.spreadsheets().values().get(spreadsheetId=sheet_id, range="Logs!A1:K1")
+    ).get("values")
     if not existing:
-        svc.spreadsheets().values().update(
-            spreadsheetId=sheet_id,
-            range="Logs!A1",
-            valueInputOption="RAW",
-            body={"values": [_COLUMNS]},
-        ).execute()
+        _execute_with_retry(
+            svc.spreadsheets().values().update(
+                spreadsheetId=sheet_id,
+                range="Logs!A1",
+                valueInputOption="RAW",
+                body={"values": [_COLUMNS]},
+            )
+        )
 
 
 def _get_sheet_title_by_gid(svc, spreadsheet_id, gid):
-    meta = svc.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    meta = _execute_with_retry(svc.spreadsheets().get(spreadsheetId=spreadsheet_id))
     for sheet in meta.get("sheets", []):
         if sheet["properties"]["sheetId"] == gid:
             return sheet["properties"]["title"]
@@ -46,16 +70,18 @@ def _get_sheet_title_by_gid(svc, spreadsheet_id, gid):
 
 
 def _ensure_sources_header(svc, sheet_id, sheet_title):
-    existing = svc.spreadsheets().values().get(
-        spreadsheetId=sheet_id, range=f"{sheet_title}!A1:C1"
-    ).execute().get("values")
+    existing = _execute_with_retry(
+        svc.spreadsheets().values().get(spreadsheetId=sheet_id, range=f"{sheet_title}!A1:C1")
+    ).get("values")
     if not existing:
-        svc.spreadsheets().values().update(
-            spreadsheetId=sheet_id,
-            range=f"{sheet_title}!A1",
-            valueInputOption="RAW",
-            body={"values": [["URL", "Date", "LLM"]]},
-        ).execute()
+        _execute_with_retry(
+            svc.spreadsheets().values().update(
+                spreadsheetId=sheet_id,
+                range=f"{sheet_title}!A1",
+                valueInputOption="RAW",
+                body={"values": [["URL", "Date", "LLM"]]},
+            )
+        )
 
 
 def _append_sources(svc, sheet_id, llm_name, urls):
@@ -67,22 +93,26 @@ def _append_sources(svc, sheet_id, llm_name, urls):
     _ensure_sources_header(svc, sheet_id, sheet_title)
     today = date.today().isoformat()
     rows = [[url, today, llm_name] for url in urls]
-    svc.spreadsheets().values().append(
-        spreadsheetId=sheet_id,
-        range=f"{sheet_title}!A1",
-        valueInputOption="RAW",
-        insertDataOption="INSERT_ROWS",
-        body={"values": rows},
-    ).execute()
+    _execute_with_retry(
+        svc.spreadsheets().values().append(
+            spreadsheetId=sheet_id,
+            range=f"{sheet_title}!A1",
+            valueInputOption="RAW",
+            insertDataOption="INSERT_ROWS",
+            body={"values": rows},
+        )
+    )
 
 
 def fetch_done_today():
     """Returns set of (prompt_text, llm) already logged today."""
     svc = _service()
-    result = svc.spreadsheets().values().get(
-        spreadsheetId=os.environ["GOOGLE_SHEETS_ID"],
-        range="Logs",
-    ).execute()
+    result = _execute_with_retry(
+        svc.spreadsheets().values().get(
+            spreadsheetId=os.environ["GOOGLE_SHEETS_ID"],
+            range="Logs",
+        )
+    )
     values = result.get("values", [])
     if len(values) < 2:
         return set()
@@ -107,25 +137,27 @@ def append_single_result(result):
         date.today().isoformat(),
         result["llm"],
         result["prompt_id"],
-        result["prompt"],
+        _trunc(result["prompt"]),
         result["country"],
         result["topic"],
-        result["response_text"],
-        result["brands_mentioned"],
+        _trunc(result["response_text"]),
+        _trunc(result["brands_mentioned"]),
         str(result["warmy_mentioned"]),
         str(result["warmy_position"]) if result["warmy_position"] is not None else "",
-        ",".join(source_urls),
+        _trunc(",".join(source_urls)),
     ]
     with _write_lock:
         svc = _service()
         sheet_id = os.environ["GOOGLE_SHEETS_ID"]
-        svc.spreadsheets().values().append(
-            spreadsheetId=sheet_id,
-            range="Logs!A1",
-            valueInputOption="RAW",
-            insertDataOption="INSERT_ROWS",
-            body={"values": [row]},
-        ).execute()
+        _execute_with_retry(
+            svc.spreadsheets().values().append(
+                spreadsheetId=sheet_id,
+                range="Logs!A1",
+                valueInputOption="RAW",
+                insertDataOption="INSERT_ROWS",
+                body={"values": [row]},
+            )
+        )
         _append_sources(svc, sheet_id, result["llm"], source_urls)
 
 
@@ -139,23 +171,26 @@ def append_results(results):
             today,
             r["llm"],
             r["prompt_id"],
-            r["prompt"],
+            _trunc(r["prompt"]),
             r["country"],
             r["topic"],
-            r["response_text"],
-            r["brands_mentioned"],
+            _trunc(r["response_text"]),
+            _trunc(r["brands_mentioned"]),
             str(r["warmy_mentioned"]),
             str(r["warmy_position"]) if r["warmy_position"] is not None else "",
-            ",".join(r.get("source_urls") or []),
+            _trunc(",".join(r.get("source_urls") or [])),
         ]
         for r in results
     ]
-    svc.spreadsheets().values().append(
-        spreadsheetId=sheet_id,
-        range="Logs!A1",
-        valueInputOption="RAW",
-        insertDataOption="INSERT_ROWS",
-        body={"values": rows},
-    ).execute()
+    for i in range(0, len(rows), _BATCH_SIZE):
+        _execute_with_retry(
+            svc.spreadsheets().values().append(
+                spreadsheetId=sheet_id,
+                range="Logs!A1",
+                valueInputOption="RAW",
+                insertDataOption="INSERT_ROWS",
+                body={"values": rows[i:i + _BATCH_SIZE]},
+            )
+        )
     for r in results:
         _append_sources(svc, sheet_id, r["llm"], r.get("source_urls") or [])
