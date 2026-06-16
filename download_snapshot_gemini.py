@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from query_llms import detect_brands
-from log_to_sheets import append_single_result, fetch_done_today
+from log_to_sheets import append_single_result, fetch_done_today, flush_pending
 
 _GEMINI_DATASET_ID = "gd_mbz66arm2mf9cu856y"
 _LLM_NAME = "Gemini"
@@ -156,6 +156,7 @@ def process_snapshot(snapshot_id):
         )
         time.sleep(1)
 
+    flush_pending()
     print(
         f"\nDone. written={written}  "
         f"skipped_duplicate={skipped_duplicate}  "

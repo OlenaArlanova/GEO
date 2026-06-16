@@ -8,7 +8,7 @@ import anthropic
 import requests
 from openai import OpenAI
 
-from log_to_sheets import fetch_done_today, append_single_result
+from log_to_sheets import fetch_done_today, append_single_result, flush_pending
 
 BRANDS = {
     "Warmy":       ["warmy", "warmy.io"],
@@ -209,6 +209,7 @@ def _run_chatgpt_batch(prompts, done_today):
         append_single_result(_make_result(text, urls, matched, "ChatGPT"))
         written.add(matched["id"])
         count += 1
+    flush_pending()
     print(f"ChatGPT: logged {count} rows.")
     return count
 
@@ -260,6 +261,7 @@ def _run_gemini_batch(prompts, done_today):
         append_single_result(_make_result(text, urls, matched, "Gemini"))
         written.add(matched["id"])
         count += 1
+    flush_pending()
     print(f"Gemini: logged {count} rows.")
     return count
 
@@ -409,6 +411,7 @@ def _run_llm(llm_name, querier, prompts, done_today):
         for future in as_completed(futures):
             if future.result() is not None:
                 count += 1
+    flush_pending()
     return count
 
 

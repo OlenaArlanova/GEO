@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from query_llms import detect_brands
-from log_to_sheets import append_single_result, fetch_done_today
+from log_to_sheets import append_single_result, fetch_done_today, flush_pending
 
 _LLM_NAME = "GoogleAIOverview"
 _API_URL = "https://api.brightdata.com/request"
@@ -161,6 +161,7 @@ def run():
             outcome = future.result()
             counts[outcome] = counts.get(outcome, 0) + 1
 
+    flush_pending()
     print(
         f"\nDone.  written={counts['written']}  "
         f"no_overview={counts['no_overview']}  "

@@ -16,7 +16,7 @@ _COLUMNS = [
     "source_urls",
 ]
 _SOURCES_GID = 1200576464
-_SHEETS_CELL_LIMIT = 50000
+_SHEETS_CELL_LIMIT = 49000
 _BATCH_SIZE = 50
 _MAX_RETRIES = 5
 _RETRY_STATUSES = {429, 503}
@@ -131,34 +131,57 @@ def fetch_done_today():
     return done
 
 
-def append_single_result(result):
-    source_urls = result.get("source_urls") or []
-    row = [
-        date.today().isoformat(),
-        result["llm"],
-        result["prompt_id"],
-        _trunc(result["prompt"]),
-        result["country"],
-        result["topic"],
-        _trunc(result["response_text"]),
-        _trunc(result["brands_mentioned"]),
-        str(result["warmy_mentioned"]),
-        str(result["warmy_position"]) if result["warmy_position"] is not None else "",
-        _trunc(",".join(source_urls)),
+_pending = []
+
+
+def _flush_locked():
+    """Flush _pending to Sheets. Must be called with _write_lock held."""
+    if not _pending:
+        return
+    batch = _pending[:]
+    _pending.clear()
+    today = date.today().isoformat()
+    rows = [
+        [
+            today,
+            r["llm"],
+            r["prompt_id"],
+            _trunc(r["prompt"]),
+            r["country"],
+            _trunc(r.get("topic") or ""),
+            _trunc(r["response_text"]),
+            _trunc(r["brands_mentioned"]),
+            str(r["warmy_mentioned"]),
+            str(r["warmy_position"]) if r["warmy_position"] is not None else "",
+            _trunc(",".join(r.get("source_urls") or [])),
+        ]
+        for r in batch
     ]
-    with _write_lock:
-        svc = _service()
-        sheet_id = os.environ["GOOGLE_SHEETS_ID"]
-        _execute_with_retry(
-            svc.spreadsheets().values().append(
-                spreadsheetId=sheet_id,
-                range="Logs!A1",
-                valueInputOption="RAW",
-                insertDataOption="INSERT_ROWS",
-                body={"values": [row]},
-            )
+    svc = _service()
+    sheet_id = os.environ["GOOGLE_SHEETS_ID"]
+    _execute_with_retry(
+        svc.spreadsheets().values().append(
+            spreadsheetId=sheet_id,
+            range="Logs!A1",
+            valueInputOption="RAW",
+            insertDataOption="INSERT_ROWS",
+            body={"values": rows},
         )
-        _append_sources(svc, sheet_id, result["llm"], source_urls)
+    )
+    for r in batch:
+        _append_sources(svc, sheet_id, r["llm"], r.get("source_urls") or [])
+
+
+def append_single_result(result):
+    with _write_lock:
+        _pending.append(result)
+        if len(_pending) >= _BATCH_SIZE:
+            _flush_locked()
+
+
+def flush_pending():
+    with _write_lock:
+        _flush_locked()
 
 
 def append_results(results):
@@ -173,7 +196,7 @@ def append_results(results):
             r["prompt_id"],
             _trunc(r["prompt"]),
             r["country"],
-            r["topic"],
+            _trunc(r["topic"]),
             _trunc(r["response_text"]),
             _trunc(r["brands_mentioned"]),
             str(r["warmy_mentioned"]),
