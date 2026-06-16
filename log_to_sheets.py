@@ -27,13 +27,18 @@ def _trunc(value, limit=_SHEETS_CELL_LIMIT):
     return s[:limit] if len(s) > limit else s
 
 
+_RETRY_DELAYS = [30, 60, 60, 60]  # waits between attempts 1-2, 2-3, 3-4, 4-5
+
+
 def _execute_with_retry(request):
     for attempt in range(_MAX_RETRIES):
         try:
             return request.execute()
         except HttpError as exc:
             if exc.resp.status in _RETRY_STATUSES and attempt < _MAX_RETRIES - 1:
-                time.sleep(2 ** (attempt + 1))  # 2, 4, 8, 16, 32 s
+                delay = _RETRY_DELAYS[min(attempt, len(_RETRY_DELAYS) - 1)]
+                print(f"  [sheets] HTTP {exc.resp.status}, retrying in {delay}s (attempt {attempt + 1}/{_MAX_RETRIES})…")
+                time.sleep(delay)
             else:
                 raise
 
